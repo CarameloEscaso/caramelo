@@ -1,5 +1,5 @@
 # caramelo
-repositorio que contiene los scripts de automatización de la calificación para el proceso de caramelo escaso
+Repositorio que contiene los scripts de automatización de la calificación para el proceso de caramelo escaso
 
 Este modulo contiene:
     - Estructura de carpetas
