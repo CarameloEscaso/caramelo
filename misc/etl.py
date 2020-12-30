@@ -149,14 +149,17 @@ def tabla_insumo_agg():
         dct[lista_cols[i]] = cols_final[i]
 
     df_agg.rename(columns=dct, inplace=True)
-    df_agg = df_agg.T.merge(catalogo_inverso[["Identificador_pregunta","actuacion"]]
+    df_agg = df_agg.T.merge(catalogo_inverso[["Identificador_pregunta","actuacion","nivel"]]
                    , left_index=True
                    , right_on=["Identificador_pregunta"]).set_index("Identificador_pregunta").T
-#     df_agg.to_csv("resultado/resultado.csv")
-    return df_agg
+    df_agg = df_agg.T.reset_index().set_index("actuacion")
+    for i in [1,2,3,4,5,"prom","sum"]:
+        df_agg[i] = df_agg.apply(lambda row: str(row[i]).replace(".",","), axis=1)
+    df_agg.to_csv("resultado/resultado.csv",sep=";")
+#     return df_agg
 
 
-# In[4]:
+# In[10]:
 
 
 
@@ -191,13 +194,15 @@ def demografico():
     file_cat = glob.glob('catalogos/*.xlsx')
     inverso = file_cat[0]
     catalogo_inverso= pd.read_excel(inverso)
-    df_corr = df_corr_vars.merge(catalogo_inverso[["Identificador_pregunta","actuacion"]]
+    df_corr = df_corr_vars.merge(catalogo_inverso[["Identificador_pregunta","actuacion","nivel"]]
                                  , left_on="vars2"
-                                 ,right_on="Identificador_pregunta")[["vars1","vars2","cramer_corr","actuacion"]]
-    df_corr.to_csv("resultado/correlacion_variables")
+                                 ,right_on="Identificador_pregunta")[["vars1","vars2","cramer_corr","actuacion","nivel","Identificador_pregunta"]]
+    df_corr["cramer_corr"] = df_corr.apply(lambda row: str(row["cramer_corr"]).replace(".",","), axis=1)
+    df_corr.to_csv("resultado/correlacion_variables.csv",sep=";")
+#     return df_corr_vars
 
 
-# In[5]:
+# In[11]:
 
 
 ## Ejecución general
