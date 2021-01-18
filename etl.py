@@ -95,8 +95,8 @@ def genera_case_actuacion():
                 'Relaciones',
                 'Superar metas']
 
-    listadomin = [x.lower() for x in actuaciones]
-    listadomay = [x.upper() for x in actuaciones]
+    listadomin = [x for x in actuaciones]
+    listadomay = [x for x in actuaciones]
     string1 = "CASE [Parametros].[Seleccionar actuacion] \n" # para actuacion Seleccionar Actuacion
 
     stringn = "WHEN '{0}'  THEN avg([{1}]) \n"
