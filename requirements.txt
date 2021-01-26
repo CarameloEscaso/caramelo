@@ -1,5 +1,4 @@
-pandas
-numpy 
-glob
-xlrd
-scipy
+pandas==0.25.3
+numpy==1.16.6
+xlrd==1.2.0
+scipy==1.3.3

@@ -170,6 +170,7 @@ def tabla_insumo_agg():
         j+=1
     df = df_total.T.fillna(method="ffill")
     df_total_pnt = df.T
+    del df
     # base calificada con los puntajes invertidos
     df_t = df_total_pnt[cols].T
     invers = {1:5,2:4,3:3,4:2,5:1}
@@ -177,7 +178,7 @@ def tabla_insumo_agg():
         df_t[c] = df_t.apply(lambda row: row[c] if row["Inversa"] == "0" 
                                     else invers[row[c]] , axis=1)
     df_tabla_final = df_t.T
-
+    del df_t
 
     lista_cols = df_tabla_final.columns
     cols_final = [cols.split('_')[1] for cols in lista_cols ]
