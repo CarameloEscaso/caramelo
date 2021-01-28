@@ -273,7 +273,7 @@ def demografico():
     df_corr_vars = df_corr_cramer.sort_values("cramer_corr",ascending=False)
 
     file_cat = glob.glob('catalogos/*.xlsx')
-    inverso = file_cat[0]
+    inverso = file_cat[1]
     catalogo_inverso= pd.read_excel(inverso)
     df_corr = df_corr_vars.merge(catalogo_inverso[["Identificador_pregunta","actuacion","nivel"]]
                                  , left_on="vars2"
@@ -368,7 +368,7 @@ def aggregado_id():
 ## Ejecución general
 if __name__ == "__main__":
 #     print("inicio ejecución")
-    df = tabla_insumo_agg()
+    tabla_insumo_agg()
 #     print("demograficos")
     demografico()
 #     print("agregado global")
