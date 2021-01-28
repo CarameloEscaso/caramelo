@@ -120,8 +120,8 @@ def tabla_insumo_agg():
 
     # Catalogo de respuestas
 
-    inverso = file_cat[0] #catalogo_1.xlsx"
-    puntaje = file_cat[1] #catalogo_2.xlsx"
+    puntaje = file_cat[0] #catalogo_1.xlsx"
+    inverso = file_cat[1] #catalogo_2.xlsx"
 
     # Leer archivos
     catalogo_punt = pd.read_excel(puntaje)
