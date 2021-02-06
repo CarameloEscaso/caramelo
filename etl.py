@@ -21,6 +21,17 @@ def clean_str(string):
     string_new = string.replace("¿","").replace("?","").lstrip().rstrip().replace(",","").                replace("á","a").replace("é","e").replace("í","i").replace("ó","o").replace("ú","u").lower().                replace("¡","").replace("!","").replace(".","")
     return string_new
 
+def extract_cod():
+    """
+    funcion que extrae el codigo de la pregunta
+    """
+    file_ins = glob.glob('insumo/*.xlsx')
+    insumo = pd.read_excel(file_ins[0])
+    df_temp = insumo.T.reset_index()
+    df_temp["index"] = df_temp.apply(lambda row: row["index"].split()[0] ,axis=1)
+    df_temp = df_temp.set_index("index").T.reset_index(drop=True).set_index("#")
+    df_temp.to_excel(file_ins[0])
+
 def cramers_corrected_stat(x,y):
 
         """ calculate Cramers V statistic for categorial-categorial association.
@@ -120,16 +131,21 @@ def tabla_insumo_agg():
 
     # Catalogo de respuestas
 
-    puntaje = file_cat[0] #catalogo_1.xlsx"
-    inverso = file_cat[1] #catalogo_2.xlsx"
+    inverso = file_cat[0] #catalogo_1.xlsx"
+    puntaje = file_cat[1] #catalogo_2.xlsx"
 
     # Leer archivos
     catalogo_punt = pd.read_excel(puntaje)
     catalogo_inverso= pd.read_excel(inverso)
-    insumo = pd.read_excel(file_ins[0], sheet_name="Empresa", skiprows=[0]).set_index("#")
+    insumo = pd.read_excel(file_ins[0]).set_index("#")
 
     # Limpiar el valor de las respuestas de signos
-    catalogo_punt["respuesta2"] = catalogo_punt.apply(lambda row: clean_str(row["Respuestas"]), axis=1) 
+    catalogo_punt["Respuestas"] = catalogo_punt.apply(lambda row: str(row["Respuestas"]), axis=1) 
+
+    catalogo_punt["respuesta2"] = catalogo_punt.apply(lambda row: clean_str(row["Respuestas"]) 
+                                                      if isinstance(row["Respuestas"],str)
+                                                      else row["Respuestas"]
+                                                      , axis=1) 
     catalogo_inverso["Inversa"] = catalogo_inverso.apply(lambda row: str(row["Inversa"]), axis=1) 
 
 
@@ -138,13 +154,15 @@ def tabla_insumo_agg():
     insumo_inv = insumo.T.reset_index().merge(catalogo_inverso[["Identificador_pregunta", "Inversa"]]
                                  , left_on="index", right_on="Identificador_pregunta", how="left").set_index("index").T
 
-    columnas = insumo.loc[:, ~insumo.columns.str.contains('^Unnamed')].columns
+    columnas = insumo.columns[insumo.columns.isin(catalogo_inverso["Identificador_pregunta"])]#insumo.loc[:, ~insumo.columns.str.contains('#')].columns
 
     #limpiar respuestas del insumo
 
     df_cols = pd.DataFrame()
     for i in columnas:
-        insumo_inv[i+"_lim"] = insumo_inv.apply(lambda row: clean_str(row[i]), axis=1) 
+        insumo_inv[i+"_lim"] = insumo_inv.apply(lambda row: clean_str(row[i])
+                                                if isinstance(row[i],str)
+                                                      else row[i], axis=1) 
 
     # Pega los puntajes a las respuestas
     df_temp = []
@@ -189,7 +207,7 @@ def tabla_insumo_agg():
 
     df_tabla_final.T.drop(columns=["Identificador_pregunta","Inversa"]).T.rename(columns=dct).to_csv("resultado/id_puntajes.csv")
 
-#     resultado con las agregaciones y conteos
+    #     resultado con las agregaciones y conteos
     df_agg = pd.DataFrame([1,2,3,4,5],columns={"index"}).set_index("index")
     df_mean = pd.DataFrame()
     df_sum = pd.DataFrame()
@@ -226,12 +244,12 @@ def tabla_insumo_agg():
     i=0
     for i in [1,2,3,4,5]:
         df_agg[i] = df_agg[i]/df_agg["sum"]
-    
+
     # formatear columnas que se exportaran
     for cols_to_form in [1,2,3,4,5,"prom","sum"]:
         df_agg[cols_to_form] = df_agg.apply(lambda row: str(row[cols_to_form]).replace(".",","), axis=1)
     df_agg.to_csv("resultado/resultado.csv",sep=";")
-#     return df_agg
+    #     return df_agg
 
 
 # In[ ]:
@@ -273,7 +291,7 @@ def demografico():
     df_corr_vars = df_corr_cramer.sort_values("cramer_corr",ascending=False)
 
     file_cat = glob.glob('catalogos/*.xlsx')
-    inverso = file_cat[1]
+    inverso = file_cat[0]
     catalogo_inverso= pd.read_excel(inverso)
     df_corr = df_corr_vars.merge(catalogo_inverso[["Identificador_pregunta","actuacion","nivel"]]
                                  , left_on="vars2"
@@ -361,20 +379,27 @@ def aggregado_id():
         df_final_act[i] = df_final_act[[i]].apply(lambda row: row[i].astype("str").replace(".",","), axis=1)
     df_final_act.to_csv("resultado/id_puntajes.csv")
 
+def limpieza_final():
+    punt = r"resultado\id_puntajes.csv"
+    df_punt = pd.read_csv(punt).reset_index(drop=True).rename(columns={"id":"index","index":"id"})
+    df_punt.to_csv(punt)
+
 
 # In[ ]:
 
 
 ## Ejecución general
 if __name__ == "__main__":
-#     print("inicio ejecución")
+    # extraer el codigo de la pregunta
+    extract_cod()
+    # generar agregaciones y convertir en puntaje las respuestas
     tabla_insumo_agg()
-#     print("demograficos")
+    # transformar el resultado de las variables demograficas
     demografico()
-#     print("agregado global")
+    #   crear resultados agregados por actuacion
     aggregado_id()
-#     print("generar case preguntas y actuaciones")
+    limpieza_final()
+    #   generar los parametros para las vistas por actuacion y pregunta en tableu
     genera_case_actuacion()
     genera_case()
-#     print("finalizado exitosamente")
 
