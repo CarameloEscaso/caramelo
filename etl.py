@@ -131,8 +131,8 @@ def tabla_insumo_agg():
 
     # Catalogo de respuestas
 
-    inverso = file_cat[0] #catalogo_1.xlsx"
-    puntaje = file_cat[1] #catalogo_2.xlsx"
+    inverso = file_cat[1] #catalogo_1.xlsx"
+    puntaje = file_cat[0] #catalogo_2.xlsx"
 
     # Leer archivos
     catalogo_punt = pd.read_excel(puntaje)
@@ -291,7 +291,7 @@ def demografico():
     df_corr_vars = df_corr_cramer.sort_values("cramer_corr",ascending=False)
 
     file_cat = glob.glob('catalogos/*.xlsx')
-    inverso = file_cat[0]
+    inverso = file_cat[1]
     catalogo_inverso= pd.read_excel(inverso)
     df_corr = df_corr_vars.merge(catalogo_inverso[["Identificador_pregunta","actuacion","nivel"]]
                                  , left_on="vars2"
@@ -380,7 +380,7 @@ def aggregado_id():
     df_final_act.to_csv("resultado/id_puntajes.csv")
 
 def limpieza_final():
-    punt = r"resultado\id_puntajes.csv"
+    punt = r"resultado/id_puntajes.csv"
     df_punt = pd.read_csv(punt).reset_index(drop=True).rename(columns={"id":"index","index":"id"})
     df_punt.to_csv(punt)
 
@@ -396,10 +396,10 @@ if __name__ == "__main__":
     tabla_insumo_agg()
     # transformar el resultado de las variables demograficas
     demografico()
-    #   crear resultados agregados por actuacion
+    # crear resultados agregados por actuacion
     aggregado_id()
     limpieza_final()
-    #   generar los parametros para las vistas por actuacion y pregunta en tableu
+    # generar los parametros para las vistas por actuacion y pregunta en tableu
     genera_case_actuacion()
     genera_case()
 
