@@ -430,6 +430,5 @@ if __name__ == "__main__":
     # generar los parametros para las vistas por actuacion y pregunta en tableu
     genera_case_actuacion()
     genera_case()
-    print("fin")
 
 
