@@ -185,24 +185,8 @@ def tabla_insumo_agg():
         j += 1
     df_total = pd.concat(df_temp, axis=1)
     
-    # Limpia la basura que queda despues de pegar los puntajes
-    # df_total = pd.DataFrame()
-    # j=0
-    # cols = []
-    # for i in df_temp:
-    #     if j==0:
-    #         col = "pnt"+"_"+columnas[j]
-    #         df_total = i.rename(columns={"puntaje":col})
-    #         df_total.to_csv("temp2.csv")
 
-        # else:
-        #     col = "pnt"+"_"+columnas[j]
-        #     df_total = df_total.merge(i, left_index=True, right_index=True, how ="left").                            rename(columns={"puntaje":col})
-        # cols.append(col)
-        # j+=1
-    # df = df_total.T.fillna(method="ffill")
-    df_total_pnt = df_total
-    # del df
+    df_total_pnt = df_total.T.fillna(method="ffill").T
     # base calificada con los puntajes invertidos
     df_t = df_total_pnt[cols].T
     cols2 = df_t.columns[:-2]
