@@ -26,7 +26,7 @@ def extract_cod():
     funcion que extrae el codigo de la pregunta
     """
     file_ins = glob.glob('insumo/*.xlsx')
-    insumo = pd.read_excel(file_ins[0])
+    insumo = pd.read_excel(file_ins[1],sheet_name=0)
     df_temp = insumo.T.reset_index()
     df_temp["index"] = df_temp.apply(lambda row: row["index"].split()[0] ,axis=1)
     df_temp = df_temp.set_index("index").T.reset_index(drop=True).set_index("#")
@@ -131,8 +131,8 @@ def tabla_insumo_agg():
 
     # Catalogo de respuestas
 
-    inverso = file_cat[0] #catalogo_1.xlsx"
-    puntaje = file_cat[1] #catalogo_2.xlsx"
+    inverso = file_cat[1] #catalogo_1.xlsx"
+    puntaje = file_cat[0] #catalogo_2.xlsx"
 
     # Leer archivos
     catalogo_punt = pd.read_excel(puntaje)
@@ -259,7 +259,7 @@ def demografico():
     # Leer resultado de id_puntajes 
     file_ins = glob.glob('insumo/*.xlsx')
     file_res = glob.glob('resultado/id_puntajes.csv')
-    demo = pd.read_excel(file_ins[1]).set_index("index")
+    demo = pd.read_excel(file_ins[0])#.set_index("#")
     insumo_punt = pd.read_csv(file_res[0]).set_index("index")
     df_corr = insumo_punt.merge(demo, left_index=True, right_index=True)
     df_corr.to_csv('resultado/id_puntajes.csv')
@@ -272,8 +272,10 @@ def demografico():
     df_corr = insumo_punt.merge(demo, left_index=True, right_index=True)
 
     # Generar el coeficiente de correlacion entre variables categoricas 
-    cols_demo = demo.columns
-    cols_punt = insumo_punt.columns
+    cols_punt = list(insumo_punt.columns)
+    print("cols_punt",cols_punt)
+    cols_demo = [i for i in demo.columns if i in cols_punt]
+    print("cols_demo", cols_demo)
     cols_tot = cols_demo.append(cols_punt)
     df_corr_cramer = pd.DataFrame()
     combinaciones = []
