@@ -259,7 +259,7 @@ def demografico():
     # Leer resultado de id_puntajes 
     file_ins = glob.glob('insumo/*.xlsx')
     file_res = glob.glob('resultado/id_puntajes.csv')
-    demo = pd.read_excel(file_ins[0])#.set_index("#")
+    demo = pd.read_excel(file_ins[0]).set_index("#")
     insumo_punt = pd.read_csv(file_res[0]).set_index("index")
     df_corr = insumo_punt.merge(demo, left_index=True, right_index=True)
     df_corr.to_csv('resultado/id_puntajes.csv')
@@ -272,22 +272,20 @@ def demografico():
     df_corr = insumo_punt.merge(demo, left_index=True, right_index=True)
 
     # Generar el coeficiente de correlacion entre variables categoricas 
-    cols_punt = list(insumo_punt.columns)
-    print("cols_punt",cols_punt)
-    cols_demo = [i for i in demo.columns if i in cols_punt]
-    print("cols_demo", cols_demo)
-    cols_tot = cols_demo.append(cols_punt)
+    cols_punt = list(df_corr.columns)
+    cols_demo = [i for i in cols_punt]
+    cols_tot = cols_demo + cols_punt 
     df_corr_cramer = pd.DataFrame()
     combinaciones = []
     for col_demo in cols_tot:
-        for col_punt in cols_punt:
-            if col_demo != col_punt:
-                if (col_punt,col_demo) not in combinaciones:
-                    combinaciones.append((col_demo, col_punt))
-                    temp = pd.DataFrame({'vars1':[col_demo]
-                                        ,"vars2":[col_punt]
-                                        ,"cramer_corr":[cramers_corrected_stat(df_corr[col_demo],df_corr[col_punt])]})
-                    df_corr_cramer = df_corr_cramer.append(temp)
+      for col_punt in cols_punt:
+          if col_demo != col_punt:
+              if (col_punt,col_demo) not in combinaciones:
+                  combinaciones.append((col_demo, col_punt))
+                  temp = pd.DataFrame({'vars1':[col_demo]
+                                      ,"vars2":[col_punt]
+                                      ,"cramer_corr":[cramers_corrected_stat(df_corr[col_demo],df_corr[col_punt])]})
+                  df_corr_cramer = df_corr_cramer.append(temp)
 
     df_corr_vars = df_corr_cramer.sort_values("cramer_corr",ascending=False)
 
