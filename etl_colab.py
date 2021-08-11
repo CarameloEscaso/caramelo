@@ -9,6 +9,7 @@ import numpy as np
 import scipy.stats as ss
 import glob
 import os
+from tqdm import tqdm
 
 
 # In[ ]:
@@ -21,16 +22,35 @@ def clean_str(string):
     string_new = string.replace("¿","").replace("?","").lstrip().rstrip().replace(",","").                replace("á","a").replace("é","e").replace("í","i").replace("ó","o").replace("ú","u").lower().                replace("¡","").replace("!","").replace(".","")
     return string_new
 
+def drop_duplicates():
+    file_ins = glob.glob('insumo/*.xlsx')
+    cols_cal = list(pd.read_excel("/content/caramelo/catalogos/1.catalogo_1.xlsx")["Identificador_pregunta"].values)
+    cols_cal.append("#")
+    insumo = pd.read_excel(file_ins[1],sheet_name=0)
+    cols_cal =  [i for i in insumo.columns if i in cols_cal]
+    demo = pd.read_excel(file_ins[0],sheet_name=0)
+
+    print("borrando duplicados en calificacion")
+    insumo.drop_duplicates(subset=["#"], inplace=True)
+    insumo[cols_cal].set_index("#").to_excel(file_ins[1])
+    print("borrando duplicados en demograficos")
+    demo.drop_duplicates(subset=["index"], inplace=True)
+    demo.set_index("index").to_excel(file_ins[0])
+    del insumo
+    del demo
+
+
 def extract_cod():
     """
     funcion que extrae el codigo de la pregunta
     """
+    drop_duplicates()
     file_ins = glob.glob('insumo/*.xlsx')
     insumo = pd.read_excel(file_ins[1],sheet_name=0)
     df_temp = insumo.T.reset_index()
     df_temp["index"] = df_temp.apply(lambda row: row["index"].split()[0] ,axis=1)
     df_temp = df_temp.set_index("index").T.reset_index(drop=True).set_index("#")
-    df_temp.to_excel(file_ins[0])
+    df_temp.to_excel(file_ins[1])
 
 def cramers_corrected_stat(x,y):
 
@@ -128,6 +148,8 @@ def tabla_insumo_agg():
     # Leer archivos de insumos y catalogo
     file_cat = glob.glob('catalogos/*.xlsx')
     file_ins = glob.glob('insumo/*.xlsx')
+    print(file_ins)
+    print(file_cat)
 
     # Catalogo de respuestas
 
@@ -137,7 +159,7 @@ def tabla_insumo_agg():
     # Leer archivos
     catalogo_punt = pd.read_excel(puntaje)
     catalogo_inverso= pd.read_excel(inverso)
-    insumo = pd.read_excel(file_ins[0]).set_index("#")
+    insumo = pd.read_excel(file_ins[1]).set_index("#")
 
     # Limpiar el valor de las respuestas de signos
     catalogo_punt["Respuestas"] = catalogo_punt.apply(lambda row: str(row["Respuestas"]), axis=1) 
@@ -191,9 +213,9 @@ def tabla_insumo_agg():
     df_t = df_total_pnt[cols].T
     cols2 = df_t.columns[:-2]
     invers = {1:5,2:4,3:3,4:2,5:1}
+    print(df_t)
     for c in cols2:
-      df_t[c] = df_t.apply(lambda row: row[c] if row["Inversa"] == "0" 
-                                    else invers[row[c]] , axis=1)
+      df_t[c] = df_t.apply(lambda row: row[c] if row["Inversa"] == "0" else invers[row[c]] , axis=1)
     df_tabla_final = df_t.T
     del df_t
 
@@ -259,7 +281,7 @@ def demografico():
     # Leer resultado de id_puntajes 
     file_ins = glob.glob('insumo/*.xlsx')
     file_res = glob.glob('resultado/id_puntajes.csv')
-    demo = pd.read_excel(file_ins[0]).set_index("#")
+    demo = pd.read_excel(file_ins[0]).set_index("index")
     insumo_punt = pd.read_csv(file_res[0]).set_index("index")
     df_corr = insumo_punt.merge(demo, left_index=True, right_index=True)
     df_corr.to_csv('resultado/id_puntajes.csv')
@@ -277,10 +299,10 @@ def demografico():
     cols_tot = cols_demo + cols_punt 
     df_corr_cramer = pd.DataFrame()
     combinaciones = []
-    for col_demo in cols_tot:
+    for col_demo in tqdm(cols_tot):      
       for col_punt in cols_punt:
           if col_demo != col_punt:
-              if (col_punt,col_demo) not in combinaciones:
+              if ((col_punt,col_demo) not in combinaciones) :
                   combinaciones.append((col_demo, col_punt))
                   temp = pd.DataFrame({'vars1':[col_demo]
                                       ,"vars2":[col_punt]
@@ -290,7 +312,7 @@ def demografico():
     df_corr_vars = df_corr_cramer.sort_values("cramer_corr",ascending=False)
 
     file_cat = glob.glob('catalogos/*.xlsx')
-    inverso = file_cat[0]
+    inverso = file_cat[1]
     catalogo_inverso= pd.read_excel(inverso)
     df_corr = df_corr_vars.merge(catalogo_inverso[["Identificador_pregunta","actuacion","nivel"]]
                                  , left_on="vars2"
