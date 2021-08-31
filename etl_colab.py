@@ -10,6 +10,7 @@ import scipy.stats as ss
 import glob
 import os
 from tqdm import tqdm
+import sys
 
 
 # In[ ]:
@@ -360,7 +361,10 @@ def aggregado_id():
 
     df_final = pd.DataFrame(index=temp.T.index)
     for actua in actuaciones:
+      try:
         temp2 = pd.DataFrame(temp[temp["actuacion"]==actua].iloc[:,:-1].astype(float).mean()).rename(columns={0:actua})
+      except:
+        sys.exit("por favor revisar que las respuestas y las preguntas coincidan con los catalogos")
         df_final = df_final.merge(temp2, left_index=True, right_index=True, how="left")
     df_final.dropna(inplace=True)
     df_final_act = punt.merge(df_final, left_index=True,right_index=True).dropna()
@@ -453,4 +457,4 @@ if __name__ == "__main__":
     genera_case_actuacion()
     genera_case()
 
-
+    print("Proceso terminado exitosamente, por favor revisar carpeta resultados para descargar la informacion")
