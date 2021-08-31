@@ -391,37 +391,48 @@ def aggregado_id():
     'Relaciones',
     'Superar metas'
          ]
-
-    df_final_act["edad_bkt"] = df_final_act.apply(lambda row: '18-25' if row['edad'] < 26 
-                                                              else '25-35' if row['edad'] < 36 
-                                                              else '35-45' if row['edad'] < 46
-                                                              else '45-55' if row['edad'] < 56
-                                                              else '+55' if row['edad'] >= 56
-                                                              else ''
-                                                  , axis=1) 
-    
-    df_final_act["antigüedad en el cargo bkt"] = df_final_act.apply(lambda row: '0-1' if row['antigüedad en el cargo'] < 2 
-                                                                          else '1-3' if row['antigüedad en el cargo'] < 4 
-                                                                          else '3-5' if row['antigüedad en el cargo'] < 6
-                                                                          else '5-8' if row['antigüedad en el cargo'] < 9
-                                                                          else '8-10' if row['antigüedad en el cargo'] < 11
-                                                                          else '+10' if row['antigüedad en el cargo'] >= 11
-                                                                          else ''
-                                                                    , axis=1) 
-    df_final_act["antigüedad en la organización bkt"] = df_final_act.apply(lambda row: '0-1' if row['antigüedad en la organización'] < 2 
-                                                                          else '1-3' if row['antigüedad en la organización'] < 4 
-                                                                          else '3-5' if row['antigüedad en la organización'] < 6
-                                                                          else '5-8' if row['antigüedad en la organización'] < 9
-                                                                          else '8-10' if row['antigüedad en la organización'] < 11
-                                                                          else '+10' if row['antigüedad en la organización'] >= 11
-                                                                          else ''
-                                                                    , axis=1)
-    for i in to_num:
+    if df_final_act.shape[0] > 0:
       try:
-        df_final_act[i] = df_final_act[[i]].apply(lambda row: row[i].astype("str").replace(".",","), axis=1)
-      except:
-        continue
-    df_final_act.to_csv(r"/content/caramelo/resultado/id_puntajes.csv")
+        df_final_act["edad_bkt"] = df_final_act.apply(lambda row: '18-25' if row['edad'] < 26 
+                                                                  else '25-35' if row['edad'] < 36 
+                                                                  else '35-45' if row['edad'] < 46
+                                                                  else '45-55' if row['edad'] < 56
+                                                                  else '+55' if row['edad'] >= 56
+                                                                  else ''
+                                                      , axis=1) 
+      except Exception as e:
+        print(e)
+        
+      try:
+        df_final_act["antigüedad en el cargo bkt"] = df_final_act.apply(lambda row: '0-1' if row['antigüedad en el cargo'] < 2 
+                                                                              else '1-3' if row['antigüedad en el cargo'] < 4 
+                                                                              else '3-5' if row['antigüedad en el cargo'] < 6
+                                                                              else '5-8' if row['antigüedad en el cargo'] < 9
+                                                                              else '8-10' if row['antigüedad en el cargo'] < 11
+                                                                              else '+10' if row['antigüedad en el cargo'] >= 11
+                                                                              else ''
+                                                                        , axis=1)
+      except Exception as e:
+        print(e) 
+
+      try:  
+        df_final_act["antigüedad en la organización bkt"] = df_final_act.apply(lambda row: '0-1' if row['antigüedad en la organización'] < 2 
+                                                                            else '1-3' if row['antigüedad en la organización'] < 4 
+                                                                            else '3-5' if row['antigüedad en la organización'] < 6
+                                                                            else '5-8' if row['antigüedad en la organización'] < 9
+                                                                            else '8-10' if row['antigüedad en la organización'] < 11
+                                                                            else '+10' if row['antigüedad en la organización'] >= 11
+                                                                            else ''
+                                                                      , axis=1)
+      except Exception as e:
+        print(e)
+
+      for i in to_num:
+        try:
+          df_final_act[i] = df_final_act[[i]].apply(lambda row: row[i].astype("str").replace(".",","), axis=1)
+        except:
+          continue
+      df_final_act.to_csv(r"/content/caramelo/resultado/id_puntajes.csv")
 
 def limpieza_final():
     punt = r"/content/caramelo/resultado/id_puntajes.csv"
