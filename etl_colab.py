@@ -293,7 +293,7 @@ def demografico():
     file_res = glob.glob(r'/content/caramelo/resultado/id_puntajes.csv')
     demo = pd.read_excel(r'/content/caramelo/insumo/2.demografica.xlsx').set_index("index")
     insumo_punt = pd.read_csv(file_res[0]).set_index("index")
-    df_corr = insumo_punt.merge(demo, left_index=True, right_index=True)
+    df_corr = insumo_punt.merge(demo, left_index=True, right_index=True, how="left").fillna(0)
     df_corr.to_csv(r'/content/caramelo/resultado/id_puntajes.csv')
 
     # categorizacion de las columnas demograficas
