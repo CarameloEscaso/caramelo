@@ -301,7 +301,7 @@ def demografico():
         demo[i] = demo[i].astype("category").cat.codes
 
     # unir las tablas que contiene la relacion entre variables demograficas con las calificaciones
-    df_corr = insumo_punt.merge(demo, left_index=True, right_index=True)
+    df_corr = insumo_punt.merge(demo, left_index=True, right_index=True, how="left").fillna(0)
 
     # Generar el coeficiente de correlacion entre variables categoricas 
     cols_punt = list(df_corr.columns)
