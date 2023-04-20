@@ -239,7 +239,7 @@ def tabla_insumo_agg():
     df_tabla_final.T.drop(columns=["Identificador_pregunta","Inversa"]).T.rename(columns=dct).to_csv("resultado/id_puntajes.csv")
 
     #     resultado con las agregaciones y conteos
-    df_agg = pd.DataFrame([1,2,3,4,5],columns={"index"}).set_index("index")
+    df_agg = pd.DataFrame([1,2,3,4,5],columns=["index"]).set_index("index")
     df_mean = pd.DataFrame()
     df_sum = pd.DataFrame()
     for c in df_tabla_final.columns:
